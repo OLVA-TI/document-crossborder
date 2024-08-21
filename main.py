@@ -2,6 +2,7 @@ from database import get_connection
 from validations.dni import handle_dni_validation
 from validations.ruc10 import handle_ruc10_validation
 from validations.ruc20 import handle_ruc20_validation
+from validations.products import handle_products_validation
 import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -36,6 +37,8 @@ def process_records(cursor):
 
 def process_row(cursor, row):
     tipo_doc, nro_doc, consignado, emision, remito = row
+    handle_products_validation(cursor, emision, remito)
+
     if int(tipo_doc) == 1:
         handle_dni_validation(cursor, nro_doc, consignado, emision, remito)
     elif int(tipo_doc) == 6 and nro_doc.startswith('10'):
@@ -46,6 +49,7 @@ def process_row(cursor, row):
         ruc = nro_doc
         nro_doc = ruc[2:-1]
         handle_ruc20_validation(cursor, ruc, consignado, emision, remito)
+    
 
 if __name__ == "__main__":
     main()
