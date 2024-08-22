@@ -30,7 +30,7 @@ def handle_products_validation(cursor, emision, remito):
         descripcion = unidecode(row[0].lower())
         for restricted_item in restricted_products:
             similarity = fuzz.partial_ratio(restricted_item, descripcion)
-            print(similarity, similarity_threshold, descripcion, restricted_item)
+            print(f"P: {similarity} D: {descripcion} I: {restricted_item}")
             if similarity >= similarity_threshold:
                 cursor.execute("""
                 UPDATE OLVADESA.TBL_CLIENTE_INTERNACIONAL
