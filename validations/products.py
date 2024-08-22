@@ -24,7 +24,7 @@ def handle_products_validation(cursor, emision, remito):
     restricted_products = [unidecode(item[0].lower()) for item in restricted]
 
     # Umbral de similitud
-    similarity_threshold = 80
+    similarity_threshold = 60
 
     for row in rows:
         descripcion = unidecode(row[0].lower())

@@ -20,6 +20,12 @@ def additional_validation(dni_data, consignado):
         return False
 
 def validate_dni(dni, consignado):
+    if not dni or dni.strip() == "":
+        return {
+            "exists": False,
+            "match": False
+        }
+    
     url = os.getenv("API_DNI_URL") + dni
     response = requests.get(url)
     
