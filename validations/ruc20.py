@@ -3,7 +3,7 @@ import unidecode
 def handle_ruc20_validation(cursor, ruc, consignado, emision, remito):
     cursor.execute("""
         SELECT RAZONSOCIAL, ESTADOCONTRIBUYENTE, CONDICIONDOMICILIO
-        FROM CONTRIBUYENTE
+        FROM OLVA_CORP.CONTRIBUYENTE
         WHERE RUC = :ruc
     """, {'ruc': ruc})
     contribuyente = cursor.fetchone()

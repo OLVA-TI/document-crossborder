@@ -25,7 +25,7 @@ def handle_no_match(cursor, nro_doc, result, emision, remito):
     print(f"DNI {nro_doc} VALIDO PERO NO COINCIDE. API Data: {result['data']}")
 
 def handle_dni_not_found(cursor, nro_doc, emision, remito):
-    obs = "DNI NO EXISTE"
+    obs = f"DNI {nro_doc}: NO EXISTE."
     cursor.execute("""
         UPDATE olvadesa.TBL_CLIENTE_INTERNACIONAL
         SET ID_ESTADO_CONSIGNADO = 9006,
