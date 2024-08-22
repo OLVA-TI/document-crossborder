@@ -45,7 +45,7 @@ def process_row(cursor, row):
         ruc = nro_doc
         nro_doc = ruc[2:-1]
         handle_ruc10_validation(cursor, ruc, nro_doc, consignado, emision, remito)
-    elif int(tipo_doc) == 6 and (nro_doc.startswith('20') or nro_doc.startswith('15')):
+    elif int(tipo_doc) == 6:#and (nro_doc.startswith('20') or nro_doc.startswith('15'))
         ruc = nro_doc
         nro_doc = ruc[2:-1]
         handle_ruc20_validation(cursor, ruc, consignado, emision, remito)
