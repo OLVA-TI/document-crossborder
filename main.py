@@ -20,7 +20,7 @@ def process_records(cursor):
     cursor.execute("""
     SELECT
         tb.TIPO_DOC_IDENTIDAD,
-        TRIM(tb.NRO_DOC_IDENTIDAD) NRO_DOC_IDENTIDAD,
+        REPLACE(tb.NRO_DOC_IDENTIDAD, CHR(160), '') NRO_DOC_IDENTIDAD,
         tb.CONSIGNADO,
         tb.EMISION,
         tb.REMITO
