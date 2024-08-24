@@ -1,7 +1,7 @@
 from validation import validate_dni
 from validations.ruc10 import handle_ruc10_validation
 
-def handle_dni_validation(cursor, nro_doc, consignado, emision, remito, validate = True):
+def handle_dni_validation(cursor, nro_doc, tipo_doc, consignado, emision, remito, validate = True):
     result = validate_dni(nro_doc, consignado)
     if result["exists"] and validate == True:
         if result["match"]:

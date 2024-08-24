@@ -40,15 +40,15 @@ def process_row(cursor, row):
     handle_products_validation(cursor, emision, remito)
 
     if int(tipo_doc) == 1:
-        handle_dni_validation(cursor, nro_doc, consignado, emision, remito)
+        handle_dni_validation(cursor, nro_doc, tipo_doc, consignado, emision, remito)
     elif int(tipo_doc) == 6 and nro_doc.startswith('10'):
         ruc = nro_doc
         nro_doc = ruc[2:-1]
-        handle_ruc10_validation(cursor, ruc, nro_doc, consignado, emision, remito)
+        handle_ruc10_validation(cursor, ruc, nro_doc, tipo_doc, consignado, emision, remito)
     elif int(tipo_doc) == 6:#and (nro_doc.startswith('20') or nro_doc.startswith('15'))
         ruc = nro_doc
         nro_doc = ruc[2:-1]
-        handle_ruc20_validation(cursor, ruc, consignado, emision, remito)
+        handle_ruc20_validation(cursor, ruc, tipo_doc, consignado, emision, remito)
     
 
 if __name__ == "__main__":
