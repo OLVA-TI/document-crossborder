@@ -7,7 +7,7 @@ def handle_dni_validation(cursor, nro_doc, tipo_doc, consignado, emision, remito
         if result["match"]:
             ruc = f"10{nro_doc}{result['data']['digitoVerificador']}"
             consignado = result['full_name']
-            handle_ruc10_validation(cursor, ruc, nro_doc, consignado, emision, remito, False)
+            handle_ruc10_validation(cursor, ruc, tipo_doc, nro_doc, consignado, emision, remito, False)
         else:
             handle_no_match(cursor, nro_doc, result, emision, remito)
     else:

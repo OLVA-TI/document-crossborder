@@ -1,5 +1,7 @@
 import requests
 import os
+from dotenv import load_dotenv
+load_dotenv(override=True)
 
 def additional_validation(dni_data, consignado):
     # Extraer nombres y apellidos del DNI
@@ -26,7 +28,7 @@ def validate_dni(dni, consignado):
             "match": False
         }
     
-    url = os.getenv("API_DNI_URL") + dni
+    url = f'{os.getenv("API_DNI_URL")}/dni/{dni}'
     response = requests.get(url)
     
     if response.status_code == 200:
