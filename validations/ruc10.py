@@ -14,6 +14,7 @@ def handle_ruc10_validation(cursor, ruc, tipo_doc, nro_doc, consignado, emision,
             razonsocial = ruc_data['nombre_o_razon_social']
             estado = ruc_data['estado']
             condicion = ruc_data['condicion']
+            nro_doc = ruc if validate else nro_doc
 
             if estado == 'ACTIVO' and condicion == 'HABIDO':
                 cursor.execute("""
@@ -56,7 +57,7 @@ def handle_ruc10_validation(cursor, ruc, tipo_doc, nro_doc, consignado, emision,
 def handle_missing_ruc(cursor, ruc, tipo_doc, nro_doc, consignado, emision, remito, validate, obs):
     if validate:
         from validations.dni import handle_dni_validation
-        handle_dni_validation(cursor, nro_doc, consignado, emision, remito)
+        handle_dni_validation(cursor, nro_doc, tipo_doc, consignado, emision, remito)
     else:
         cursor.execute("""
             UPDATE olvadesa.TBL_CLIENTE_INTERNACIONAL
