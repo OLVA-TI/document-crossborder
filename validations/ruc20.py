@@ -1,8 +1,8 @@
 import requests
-import unidecode
 import os
 from dotenv import load_dotenv
 load_dotenv(override=True)
+from validation import compare_names
 
 def handle_ruc20_validation(cursor, ruc, tipo_doc, consignado, emision, remito):
     # Consultar la API externa
@@ -76,27 +76,3 @@ def handle_missing_ruc(cursor, ruc, emision, remito):
     """, {'obs': obs, 'emision': emision, 'remito': remito})
     print(f"RUC {ruc} NO EXISTE.")
 
-def sanitize_text(text):
-    """ Convertir texto a mayúsculas y remover tildes """
-    text = text.upper()
-    text = unidecode.unidecode(text)  # Remueve tildes y otros caracteres especiales
-    return text
-
-def remove_company_types(words):
-    """ Eliminar palabras comunes de tipos de empresas en Perú """
-    company_types = {'SAC', 'S.A.C.', 'EIRL', 'E.I.R.L.', 'S.A.', 'SA'}
-    return [word for word in words if word not in company_types]
-
-def compare_names(name_a, name_b):
-    """ Comparar dos nombres de empresas según las reglas especificadas """
-    # Sanitizar ambos nombres
-    name_a = sanitize_text(name_a)
-    name_b = sanitize_text(name_b)
-
-    # Convertir nombres en listas de palabras y eliminar tipos de compañías
-    words_a = remove_company_types(name_a.split())
-    words_b = remove_company_types(name_b.split())
-
-    # Comparar si al menos dos palabras coinciden
-    match_count = sum(1 for word in words_b if word in words_a)
-    return match_count >= 2

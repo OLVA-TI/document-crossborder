@@ -2,6 +2,7 @@ import requests
 import os
 from dotenv import load_dotenv
 load_dotenv(override=True)
+from validation import compare_names
 
 def handle_ruc10_validation(cursor, ruc, tipo_doc, nro_doc, consignado, emision, remito, validate=True):
     # Consultar la API externa
@@ -16,35 +17,48 @@ def handle_ruc10_validation(cursor, ruc, tipo_doc, nro_doc, consignado, emision,
             condicion = ruc_data['condicion']
             nro_doc = ruc if validate else nro_doc
 
-            if estado == 'ACTIVO' and condicion == 'HABIDO':
-                cursor.execute("""
-                    UPDATE olvadesa.TBL_CLIENTE_INTERNACIONAL
-                    SET ID_ESTADO_CONSIGNADO = 9005,
-                        CONSIGNADO_OLD = CONSIGNADO,
-                        CONSIGNADO = :consignado,
-                        NRO_DOC_IDENTIDAD_OLD = NRO_DOC_IDENTIDAD,
-                        NRO_DOC_IDENTIDAD = :nro_doc,
-                        TIPO_DOC_IDENTIDAD_OLD = TIPO_DOC_IDENTIDAD,
-                        TIPO_DOC_IDENTIDAD = :tipo_doc
-                    WHERE emision = :emision AND remito = :remito
-                """, {'consignado': razonsocial, 'emision': emision, 'remito': remito, 'nro_doc': ruc, 'tipo_doc': 6})
-                print(f"RUC {ruc} ACTIVO Y HABIDO.")
+            # Comparar nombres
+            match = compare_names(razonsocial, consignado)
+            if match:
+                if estado == 'ACTIVO' and condicion == 'HABIDO':
+                    cursor.execute("""
+                        UPDATE olvadesa.TBL_CLIENTE_INTERNACIONAL
+                        SET ID_ESTADO_CONSIGNADO = 9005,
+                            CONSIGNADO_OLD = CONSIGNADO,
+                            CONSIGNADO = :consignado,
+                            NRO_DOC_IDENTIDAD_OLD = NRO_DOC_IDENTIDAD,
+                            NRO_DOC_IDENTIDAD = :nro_doc,
+                            TIPO_DOC_IDENTIDAD_OLD = TIPO_DOC_IDENTIDAD,
+                            TIPO_DOC_IDENTIDAD = :tipo_doc
+                        WHERE emision = :emision AND remito = :remito
+                    """, {'consignado': razonsocial, 'emision': emision, 'remito': remito, 'nro_doc': ruc, 'tipo_doc': 6})
+                    print(f"RUC {ruc} ACTIVO Y HABIDO.")
+                else:
+                    obs = f"ESTADO: {estado}, CONDICIÓN: {condicion}"
+                    cursor.execute("""
+                        UPDATE olvadesa.TBL_CLIENTE_INTERNACIONAL
+                        SET ID_ESTADO_CONSIGNADO = 9005,
+                            ID_MOTIVO_CONSIGNADO = 9009,
+                            OBS_VALIDACION_CONSIGNADO = :obs,
+                            CONSIGNADO_OLD = CONSIGNADO,
+                            CONSIGNADO = :consignado,
+                            NRO_DOC_IDENTIDAD_OLD = NRO_DOC_IDENTIDAD,
+                            NRO_DOC_IDENTIDAD = :nro_doc,
+                            TIPO_DOC_IDENTIDAD_OLD = TIPO_DOC_IDENTIDAD,
+                            TIPO_DOC_IDENTIDAD = :tipo_doc
+                        WHERE emision = :emision AND remito = :remito
+                    """, {'obs': obs, 'consignado': consignado, 'emision': emision, 'remito': remito, 'nro_doc': nro_doc, 'tipo_doc': tipo_doc})
+                    print(f"RUC {ruc} NO ACTIVO O HABIDO.")
             else:
-                obs = f"ESTADO: {estado}, CONDICIÓN: {condicion}"
+                obs = f"RUC NO MATCH: {ruc} RAZON SOCIAL: {razonsocial}"
                 cursor.execute("""
                     UPDATE olvadesa.TBL_CLIENTE_INTERNACIONAL
-                    SET ID_ESTADO_CONSIGNADO = 9005,
-                        ID_MOTIVO_CONSIGNADO = 9009,
-                        OBS_VALIDACION_CONSIGNADO = :obs,
-                        CONSIGNADO_OLD = CONSIGNADO,
-                        CONSIGNADO = :consignado,
-                        NRO_DOC_IDENTIDAD_OLD = NRO_DOC_IDENTIDAD,
-                        NRO_DOC_IDENTIDAD = :nro_doc,
-                        TIPO_DOC_IDENTIDAD_OLD = TIPO_DOC_IDENTIDAD,
-                        TIPO_DOC_IDENTIDAD = :tipo_doc
+                    SET ID_ESTADO_CONSIGNADO = 9006,
+                        ID_MOTIVO_CONSIGNADO = 9011,
+                        OBS_VALIDACION_CONSIGNADO = :obs
                     WHERE emision = :emision AND remito = :remito
-                """, {'obs': obs, 'consignado': consignado, 'emision': emision, 'remito': remito, 'nro_doc': nro_doc, 'tipo_doc': tipo_doc})
-                print(f"RUC {ruc} NO ACTIVO O HABIDO.")
+                """, {'obs': obs, 'emision': emision, 'remito': remito})
+                print(f"RUC {ruc} NO MATCH.")
         else:
             obs = f"RUC NO EXISTE: {ruc}"
             handle_missing_ruc(cursor, ruc, tipo_doc, nro_doc, consignado, emision, remito, validate, obs)
