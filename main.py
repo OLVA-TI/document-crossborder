@@ -8,6 +8,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 def main():
     try:
+        print(f"MAIN PYTHON")
         with get_connection() as connection:
             with connection.cursor() as cursor:
                 process_records(cursor)
@@ -19,9 +20,9 @@ def main():
 def process_records(cursor):
     cursor.execute("""
     SELECT
-        tb.TIPO_DOC_IDENTIDAD,
-        REPLACE(tb.NRO_DOC_IDENTIDAD, CHR(160), '') NRO_DOC_IDENTIDAD,
-        tb.CONSIGNADO,
+        NVL(tb.TIPO_DOC_IDENTIDAD, '1'),
+        REPLACE(NVL(tb.NRO_DOC_IDENTIDAD, ''), CHR(160), '') NRO_DOC_IDENTIDAD,
+        NVL(tb.CONSIGNADO, ''),
         tb.EMISION,
         tb.REMITO
     FROM
@@ -29,15 +30,17 @@ def process_records(cursor):
     INNER JOIN OLVA_CORP.PAQUETE_DECLARADO pd ON
         pd.ID = tb.id_paquete_declarado
     WHERE
-        tb.id_estado_consignado = 9004
+        tb.id_estado_consignado = 9004 and REPLACE(NVL(tb.NRO_DOC_IDENTIDAD, ''), CHR(160), '') = '42500470'
     """)
+                
     rows = cursor.fetchall()
-    for row in rows:
+    for index, row in enumerate(rows):
+        print(f"Iteration: {index + 1}, Processing row: {row}")
         process_row(cursor, row)
 
 def process_row(cursor, row):
     tipo_doc, nro_doc, consignado, emision, remito = row
-    handle_products_validation(cursor, emision, remito)
+    #handle_products_validation(cursor, emision, remito)
 
     if int(tipo_doc) == 1:
         handle_dni_validation(cursor, nro_doc, tipo_doc, consignado, emision, remito)

@@ -22,14 +22,17 @@ def handle_products_validation(cursor, emision, remito):
     """)
     restricted = cursor.fetchall()
 
-    restricted_products = [unidecode(item[0].lower()) for item in restricted]
+    restricted_products = [unidecode(item[0].upper()) for item in restricted]
 
     # Umbral de similitud
     similarity_threshold = 85
 
     for row in rows:
         descripcion, id = row
-        descripcion = unidecode(descripcion.lower())
+        descripcion = unidecode(descripcion.upper()) if descripcion else ""
+        
+        if not descripcion:
+            continue
 
         for restricted_item in restricted_products:
             similarity = fuzz.token_set_ratio(restricted_item, descripcion)

@@ -6,21 +6,25 @@ load_dotenv(override=True)
 
 def additional_validation(dni_data, consignado):
     # Extraer nombres y apellidos del DNI
-    nombres_api = dni_data['nombres'].split()
-    apellido_paterno = dni_data['apellidoPaterno']
-    apellido_materno = dni_data['apellidoMaterno']
+    nombres_api = sanitize_text(dni_data.get('nombres', '')).split() if dni_data.get('nombres') else []
+    apellido_paterno = sanitize_text(dni_data.get('apellidoPaterno', '')).upper() if dni_data.get('apellidoPaterno') else ''
+    apellido_materno = sanitize_text(dni_data.get('apellidoMaterno', '')).upper() if dni_data.get('apellidoMaterno') else ''
 
-    # Dividir los datos consignados en palabras
-    consignado_parts = consignado.lower().split()
-
-    # Verificar si al menos un nombre y un apellido coinciden
-    match_nombre = any(nombre.lower() in consignado_parts for nombre in nombres_api)
-    match_apellido = apellido_paterno.lower() in consignado_parts or apellido_materno.lower() in consignado_parts
-
-    if match_nombre and match_apellido:
-        return True
-    else:
+    # Verificar si consignado es nulo o vacío
+    if not consignado:
         return False
+    
+    # Dividir los datos consignados en palabras
+    print(f"CONSIGNADO DATA ANTES {consignado.upper()}")    
+    consignado_parts = sanitize_text(consignado.upper()).split()
+    print(f"CONSIGNADO DATA ANTES {sanitize_text(consignado.upper())}")  
+    print(f"CONSIGNADO {apellido_paterno}")  
+    
+    # Verificar si al menos un nombre y un apellido coinciden
+    match_nombre = any(nombre.upper() in consignado_parts for nombre in nombres_api)
+    match_apellido = apellido_paterno in consignado_parts or apellido_materno in consignado_parts
+
+    return match_nombre and match_apellido
 
 def validate_dni(dni, consignado):
     if not dni or dni.strip() == "":
@@ -51,14 +55,13 @@ def validate_dni(dni, consignado):
         response.raise_for_status()
 
 def sanitize_text(text):
-    """ Convertir texto a mayúsculas y remover tildes """
-    text = text.upper()
+    """ Remover tildes """
     text = unidecode.unidecode(text)  # Remueve tildes y otros caracteres especiales
     return text
 
 def remove_company_types(words):
     """ Eliminar palabras comunes de tipos de empresas en Perú """
-    company_types = {'SAC', 'S.A.C.', 'EIRL', 'E.I.R.L.', 'S.A.', 'SA'}
+    company_types = {'SAC', 'S.A.C.','SAA', 'S.A.A.','SRL', 'S.R.L.', 'EIRL', 'E.I.R.L.', 'S.A.', 'SA'}
     return [word for word in words if word not in company_types]
 
 def compare_names(name_a, name_b):
