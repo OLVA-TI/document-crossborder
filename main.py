@@ -40,7 +40,7 @@ def process_records(cursor):
 
 def process_row(cursor, row):
     tipo_doc, nro_doc, consignado, emision, remito = row
-    #handle_products_validation(cursor, emision, remito)
+    handle_products_validation(cursor, emision, remito)
 
     if int(tipo_doc) == 1:
         handle_dni_validation(cursor, nro_doc, tipo_doc, consignado, emision, remito)

@@ -2,7 +2,7 @@ import requests
 import os
 from dotenv import load_dotenv
 load_dotenv(override=True)
-from validation import compare_names
+from validation import compare_names, validate_dni
 
 def handle_ruc10_validation(cursor, ruc, tipo_doc, nro_doc, consignado, emision, remito, validate=True):
     # Consultar la API externa
@@ -34,6 +34,10 @@ def handle_ruc10_validation(cursor, ruc, tipo_doc, nro_doc, consignado, emision,
                     """, {'consignado': razonsocial, 'emision': emision, 'remito': remito, 'nro_doc': ruc, 'tipo_doc': 6})
                     print(f"RUC {ruc} ACTIVO Y HABIDO.")
                 else:
+                    nro_doc = ruc[2:-1]
+                    result = validate_dni(nro_doc, consignado)
+                    if result["exists"]:
+                        consignado = result['full_name']
                     obs = f"ESTADO: {estado}, CONDICIÓN: {condicion}"
                     cursor.execute("""
                         UPDATE olvadesa.TBL_CLIENTE_INTERNACIONAL
