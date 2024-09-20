@@ -30,7 +30,7 @@ def process_records(cursor):
     INNER JOIN OLVA_CORP.PAQUETE_DECLARADO pd ON
         pd.ID = tb.id_paquete_declarado
     WHERE
-        tb.id_estado_consignado = 9004 and REPLACE(NVL(tb.NRO_DOC_IDENTIDAD, ''), CHR(160), '') = '42500470'
+        tb.id_estado_consignado = 9004 
     """)
                 
     rows = cursor.fetchall()
