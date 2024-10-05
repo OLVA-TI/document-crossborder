@@ -33,7 +33,7 @@ def validate_dni(dni, consignado):
             "match": False
         }
     
-    url = f'{os.getenv("API_DNI_URL")}/dni/{dni}'
+    url = f'{os.getenv("API_DNI_URL")}/dni/{dni}?source=CB'
     response = requests.get(url)
     
     if response.status_code == 200:

@@ -6,7 +6,7 @@ from validation import compare_names
 
 def handle_ruc20_validation(cursor, ruc, tipo_doc, consignado, emision, remito):
     # Consultar la API externa
-    api_url = f'{os.getenv("API_DNI_URL")}/ruc/{ruc}'
+    api_url = f'{os.getenv("API_DNI_URL")}/ruc/{ruc}?source=CB'
     response = requests.get(api_url)
 
     if response.status_code == 200:
